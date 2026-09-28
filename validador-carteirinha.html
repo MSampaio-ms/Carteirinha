@@ -47,13 +47,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--brand);outline-
     <button id="go" type="button">Validar</button>
   </div>
   <section id="result" aria-live="polite"></section>
-  <p class="hint">Página de exemplo com dados fictícios. Códigos de teste: 1000000000001-01 (válido, vence em 2026) e 1000000000002-02 (válido, já vencido).</p>
 </main>
 <script>
 // Banco de dados fictício: em um sistema real, isso ficaria em um servidor.
 var DB = {
-  "1000000000001-01": {ra:"00000001-1", nome:"Aluno Exemplo da Silva", curso:"CURSO DE EXEMPLO EM TECNOLOGIA", validade:"2026-12-31"},
-  "1000000000002-02": {ra:"00000002-2", nome:"Aluna Modelo Souza", curso:"CURSO DE EXEMPLO EM ADMINISTRAÇÃO", validade:"2025-06-30"}
+  "1790620322800-15": {ra:"22166082-5", nome:"Milena da Silva Sampaio", curso:"SUPERIOR EM GESTÃO DA TECNOLOGIA DA INFORMAÇÃO", validade:"2026-12-27"},
+
 };
 function fmt(iso){var p=iso.split("-");return p[2]+"/"+p[1]+"/"+p[0];}
 function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
@@ -74,7 +73,7 @@ function validar(){
   }
   out.className="ok";
   out.innerHTML='<div class="icon" aria-hidden="true">✓</div><div class="badge">CARTEIRINHA VÁLIDA</div>'+
-   '<div class="card"><div class="photo">sem foto</div><div>'+
+   '<div class="card"><div class="photo"></div><div>'+
    '<p><strong>RA:</strong> '+esc(aluno.ra)+'</p>'+
    '<p><strong>Aluno:</strong> '+esc(aluno.nome)+'</p>'+
    '<p><strong>Curso:</strong> '+esc(aluno.curso)+'</p>'+
