@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Validador de carteirinha (exemplo)</title>
+<style>
+:root{
+  --bg:#f6f7f9;--card:#fff;--ink:#1c2733;--muted:#5b6b7b;--line:#dfe4ea;
+  --brand:#1f5f8b;--ok:#2e6b3a;--okbg:#e8f3ea;--err:#a33a2a;--errbg:#f8e9e6;--info:#e3eff7;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12181e;--card:#1a222b;--ink:#e6ebf0;--muted:#9aa9b8;--line:#2b3742;
+  --brand:#6fb3e0;--ok:#7fcf8e;--okbg:#1c2f22;--err:#f0998a;--errbg:#3a2320;--info:#1b2d3b;}}
+:root[data-theme="dark"]{
+  --bg:#12181e;--card:#1a222b;--ink:#e6ebf0;--muted:#9aa9b8;--line:#2b3742;
+  --brand:#6fb3e0;--ok:#7fcf8e;--okbg:#1c2f22;--err:#f0998a;--errbg:#3a2320;--info:#1b2d3b;}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Source Sans 3",system-ui,sans-serif;line-height:1.5}
+main{max-width:640px;margin:0 auto;padding:40px 20px}
+h1{font-size:2.2rem;font-weight:600;color:var(--brand);text-align:center;margin:0 0 24px}
+.info{background:var(--info);border:1px solid var(--line);padding:12px 16px;border-radius:4px;font-size:.95rem}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);padding:12px;margin-top:16px;border-radius:4px}
+label{font-weight:600}
+input{flex:1;min-width:160px;padding:9px 10px;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px}
+button{padding:9px 18px;font:inherit;font-weight:600;color:#fff;background:var(--brand);border:0;border-radius:4px;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+#result{margin-top:28px;text-align:center}
+.badge{font-weight:700;font-size:1.05rem;margin:8px 0 16px}
+.ok .badge{color:var(--ok)}.err .badge{color:var(--err)}
+.icon{width:64px;height:64px;border-radius:50%;margin:0 auto;display:grid;place-items:center;font-size:2rem;color:#fff}
+.ok .icon{background:var(--ok)}.err .icon{background:var(--err)}
+.card{display:flex;gap:16px;text-align:left;background:var(--card);border:1px solid var(--line);padding:14px;border-radius:4px}
+.photo{flex:none;width:80px;height:100px;border:1px solid var(--line);background:var(--bg);display:grid;place-items:center;color:var(--muted);font-size:.75rem;text-align:center}
+.card p{margin:2px 0}
+.hint{margin-top:32px;font-size:.85rem;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<main>
+  <h1>Validação de carteirinha</h1>
+  <div class="info">Para validar a carteirinha de estudante, digite o código de validação impresso no verso dela.</div>
+  <div class="row">
+    <label for="code">Código de validação:</label>
+    <input id="code" value="1000000000001-01" autocomplete="off" inputmode="text">
+    <button id="go" type="button">Validar</button>
+  </div>
+  <section id="result" aria-live="polite"></section>
+  <p class="hint">Página de exemplo com dados fictícios. Códigos de teste: 1000000000001-01 (válido, vence em 2026) e 1000000000002-02 (válido, já vencido).</p>
+</main>
+<script>
+// Banco de dados fictício: em um sistema real, isso ficaria em um servidor.
+var DB = {
+  "1000000000001-01": {ra:"00000001-1", nome:"Aluno Exemplo da Silva", curso:"CURSO DE EXEMPLO EM TECNOLOGIA", validade:"2026-12-31"},
+  "1000000000002-02": {ra:"00000002-2", nome:"Aluna Modelo Souza", curso:"CURSO DE EXEMPLO EM ADMINISTRAÇÃO", validade:"2025-06-30"}
+};
+function fmt(iso){var p=iso.split("-");return p[2]+"/"+p[1]+"/"+p[0];}
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+function validar(){
+  var code=document.getElementById("code").value.trim();
+  var out=document.getElementById("result");
+  var aluno=DB[code];
+  var hoje=new Date().toISOString().slice(0,10);
+  if(!aluno){
+    out.className="err";
+    out.innerHTML='<div class="icon" aria-hidden="true">✕</div><div class="badge">CARTEIRINHA NÃO ENCONTRADA</div><p>Confira o código digitado e tente de novo.</p>';
+    return;
+  }
+  if(aluno.validade<hoje){
+    out.className="err";
+    out.innerHTML='<div class="icon" aria-hidden="true">✕</div><div class="badge">CARTEIRINHA VENCIDA</div><p>Vencimento em '+fmt(aluno.validade)+'.</p>';
+    return;
+  }
+  out.className="ok";
+  out.innerHTML='<div class="icon" aria-hidden="true">✓</div><div class="badge">CARTEIRINHA VÁLIDA</div>'+
+   '<div class="card"><div class="photo">sem foto</div><div>'+
+   '<p><strong>RA:</strong> '+esc(aluno.ra)+'</p>'+
+   '<p><strong>Aluno:</strong> '+esc(aluno.nome)+'</p>'+
+   '<p><strong>Curso:</strong> '+esc(aluno.curso)+'</p>'+
+   '<p><strong>Validade:</strong> '+fmt(aluno.validade)+'</p></div></div>';
+}
+document.getElementById("go").addEventListener("click",validar);
+document.getElementById("code").addEventListener("keydown",function(e){if(e.key==="Enter")validar();});
+validar();
+</script>
+</body>
+</html>
